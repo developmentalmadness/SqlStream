@@ -75,6 +75,43 @@ namespace DevelopMENTALMadness.Data.Sql
 			}	
 		}
 
+
+		public void Flush()
+		{
+			EnqueueCurrent();
+			int alreadyStarted = Interlocked.CompareExchange(ref threadStarts, 1, 0);
+			if (alreadyStarted == 0)
+			{
+				logger.Debug("Staring background thread.");
+				ThreadPool.QueueUserWorkItem(new WaitCallback(ExecuteNonQuery));
+			}
+		}
+
+		public void Close()
+		{
+			// flush buffer and wait
+			logger.Debug("Closing stream, set finalize flag and wait");
+			Interlocked.Increment(ref finalizeStream);
+			Flush();
+			completed.Wait();
+			logger.Debug("Finished closing stream.");
+		}
+
+		#region IDisposable Members
+		private bool disposed = false;
+
+		public void Dispose()
+		{
+			if (disposed)
+				throw new ObjectDisposedException(typeof(SqlStream<T>).Name);
+
+			disposed = true;
+
+			Close();
+		}
+
+		#endregion
+
 		private void EnqueueCurrent()
 		{
 			var wait = new SpinWait();
@@ -147,36 +184,6 @@ namespace DevelopMENTALMadness.Data.Sql
 			logger.Debug("Background thread started.");
 			connection.ExecuteNonQuery(this);
 		}
-
-		public void Flush()
-		{
-			EnqueueCurrent();
-			int alreadyStarted = Interlocked.CompareExchange(ref threadStarts, 1, 0);
-			if (alreadyStarted == 0)
-			{
-				logger.Debug("Staring background thread.");
-				ThreadPool.QueueUserWorkItem(new WaitCallback(ExecuteNonQuery));
-			}
-		}
-
-		public void Close()
-		{
-			// flush buffer and wait
-			logger.Debug("Closing stream, set finalize flag and wait");
-			Interlocked.Increment(ref finalizeStream);
-			Flush();
-			completed.Wait();
-			logger.Debug("Finished closing stream.");
-		}
-	
-		#region IDisposable Members
-
-		public void Dispose()
-		{
-			throw new NotImplementedException();
-		}
-
-		#endregion
 
 		#region IEnumerable<SqlDataRecord> Members
 
