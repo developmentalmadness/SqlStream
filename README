@@ -2,7 +2,7 @@ SqlStream is an ADO.NET library intended to support Table-Valued Parameters (TVP
 
 While it is not actually possible to implement a class that inherits from System.IO.Stream, the semantics employed by SqlStream are the same.
 
-For background see the <a href="http://www.sqlservercentral.com/articles/SQL+Server+2008/66554/">Sql Server Central article</a> that inspired this project.
+For background see the Sql Server Central article (http://www.sqlservercentral.com/articles/SQL+Server+2008/66554/) that inspired this project.
 
 To see how it is used, open the solution file (VS 2010), set SqlServerStreamTests as the startup project, hit F5 or click Debug -> Start Debugging, then once the NUnit GUI loads click "Run".
 
@@ -11,3 +11,5 @@ To actually use this library in a project you'll need to define the following:
 1) A Sql Server User Defined Type (UDT): This will act as the TVP for your stored procedure.
 2) A Stored Procedure which has one parameter which is the UDT you defined in step #1.
 3) A .NET class in your client application that implements ISqlStreamRecord.
+
+NOTE: For now, to see how to complete #1 and #2 see the article: http://www.sqlservercentral.com/articles/SQL+Server+2008/66554/
