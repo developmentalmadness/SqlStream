@@ -1,7 +1,0 @@
-C:\dev\git\SqlServerStream\SqlServerStream\bin\Debug\SqlServerStream.dll
-C:\dev\git\SqlServerStream\SqlServerStream\bin\Debug\SqlServerStream.pdb
-C:\dev\git\SqlServerStream\SqlServerStream\bin\Debug\Common.Logging.dll
-C:\dev\git\SqlServerStream\SqlServerStream\bin\Debug\Common.Logging.Log4Net.dll
-C:\dev\git\SqlServerStream\SqlServerStream\obj\Debug\ResolveAssemblyReference.cache
-C:\dev\git\SqlServerStream\SqlServerStream\obj\Debug\SqlServerStream.dll
-C:\dev\git\SqlServerStream\SqlServerStream\obj\Debug\SqlServerStream.pdb
