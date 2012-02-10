@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
-using Microsoft.SqlServer.Server;
 using Common.Logging;
+using Microsoft.SqlServer.Server;
 
 namespace DevelopMENTALMadness.Data.Sql
 {

@@ -63,7 +63,6 @@
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="log4net.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -71,9 +70,6 @@
       <Project>{626D1D79-25A3-4A2B-82EC-2437B9B60FA2}</Project>
       <Name>SqlServerStream</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="loggerconfig.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

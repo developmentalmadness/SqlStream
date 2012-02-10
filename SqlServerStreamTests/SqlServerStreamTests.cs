@@ -1,17 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NUnit.Framework;
-using Moq;
 using System.Threading;
-using System.Collections.Specialized;
-using log4net.Config;
-using log4net.Repository.Hierarchy;
-using System.Linq;
-using System.Reflection;
 using log4net.Appender;
-using log4net.Layout;
+using log4net.Config;
+using Moq;
+using NUnit.Framework;
 
 namespace DevelopMENTALMadness.Data.Sql.Tests
 {
