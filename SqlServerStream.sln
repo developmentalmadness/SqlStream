@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlServerStream", "SqlServerStream\SqlServerStream.csproj", "{626D1D79-25A3-4A2B-82EC-2437B9B60FA2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlServerStreamTests", "SqlServerStreamTests\SqlServerStreamTests.csproj", "{471A5805-1137-494D-895B-FB421490BB21}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{626D1D79-25A3-4A2B-82EC-2437B9B60FA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{626D1D79-25A3-4A2B-82EC-2437B9B60FA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{626D1D79-25A3-4A2B-82EC-2437B9B60FA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{626D1D79-25A3-4A2B-82EC-2437B9B60FA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{471A5805-1137-494D-895B-FB421490BB21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{471A5805-1137-494D-895B-FB421490BB21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{471A5805-1137-494D-895B-FB421490BB21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{471A5805-1137-494D-895B-FB421490BB21}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

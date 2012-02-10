@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--This file represents the results of running a test suite-->
+<test-results name="C:\Users\Mark\Documents\Visual Studio 2010\Projects\SqlServerStream\SqlServerStreamTests\SqlServerStreamTests.csproj" total="1" errors="0" failures="1" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2012-01-25" time="10:20:01">
+  <environment nunit-version="2.5.10.11092" clr-version="2.0.50727.5448" os-version="Microsoft Windows NT 6.1.7601 Service Pack 1" platform="Win32NT" cwd="C:\Users\Mark\Documents\Visual Studio 2010\Projects\SqlServerStream\SqlServerStreamTests\bin\Debug" machine-name="MMILLER-DEV" user="Mark" user-domain="MMILLER-DEV" />
+  <culture-info current-culture="en-US" current-uiculture="en-US" />
+  <test-suite type="Project" name="C:\Users\Mark\Documents\Visual Studio 2010\Projects\SqlServerStream\SqlServerStreamTests\SqlServerStreamTests.csproj" executed="True" result="Failure" success="False" time="0.062" asserts="0">
+    <results>
+      <test-suite type="Assembly" name="C:\Users\Mark\Documents\Visual Studio 2010\Projects\SqlServerStream\SqlServerStreamTests\bin\Debug\SqlServerStreamTests.dll" executed="True" result="Failure" success="False" time="0.062" asserts="0">
+        <results>
+          <test-suite type="Namespace" name="DevelopMENTALMadness" executed="True" result="Failure" success="False" time="0.062" asserts="0">
+            <results>
+              <test-suite type="Namespace" name="Data" executed="True" result="Failure" success="False" time="0.062" asserts="0">
+                <results>
+                  <test-suite type="Namespace" name="Sql" executed="True" result="Failure" success="False" time="0.047" asserts="0">
+                    <results>
+                      <test-suite type="Namespace" name="Tests" executed="True" result="Failure" success="False" time="0.047" asserts="0">
+                        <results>
+                          <test-suite type="TestFixture" name="SqlStreamTests" executed="True" result="Failure" success="False" time="0.047" asserts="0">
+                            <results>
+                              <test-case name="DevelopMENTALMadness.Data.Sql.Tests.SqlStreamTests.Test1" executed="True" result="Failure" success="False" time="0.047" asserts="1">
+                                <failure>
+                                  <message><![CDATA[  Data wasn't streamed.
+  Expected: 100
+  But was:  0
+]]></message>
+                                  <stack-trace><![CDATA[at DevelopMENTALMadness.Data.Sql.Tests.SqlStreamTests.Test1() in C:\Users\Mark\Documents\Visual Studio 2010\Projects\SqlServerStream\SqlServerStreamTests\SqlServerStreamTests.cs:line 36
+]]></stack-trace>
+                                </failure>
+                              </test-case>
+                            </results>
+                          </test-suite>
+                        </results>
+                      </test-suite>
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

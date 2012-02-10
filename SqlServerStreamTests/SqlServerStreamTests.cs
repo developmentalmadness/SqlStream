@@ -5,11 +5,8 @@ using System.Text;
 using NUnit.Framework;
 using Moq;
 using System.Threading;
-using Common.Logging;
 using System.Collections.Specialized;
-using Common.Logging.Simple;
 using log4net.Config;
-using Common.Logging.Log4Net;
 using log4net.Repository.Hierarchy;
 using System.Linq;
 using System.Reflection;
@@ -24,18 +21,7 @@ namespace DevelopMENTALMadness.Data.Sql.Tests
 		[TestFixtureSetUp]
 		public void Init()
 		{
-			NameValueCollection config = new NameValueCollection();
-			//config.Add("configType", "EXTERNAL");
-
-			//var x = new ConsoleAppender { Layout = new PatternLayout("[%thread] %-4timestamp %-5level %logger %ndc - %message%newline") };
-			//BasicConfigurator.Configure(x);
-
-
-
-			LogManager.Adapter = new Log4NetLoggerFactoryAdapter(config);
-			var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("DevelopMENTALMadness.Data.Sql.Tests.loggerconfig.xml");
-			XmlConfigurator.Configure(stream);
-
+			BasicConfigurator.Configure(new ConsoleAppender());
 		}
 
 		[Test]

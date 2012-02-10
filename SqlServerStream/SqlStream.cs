@@ -25,7 +25,7 @@ namespace DevelopMENTALMadness.Data.Sql
 	/// <typeparam name="T">A class that implements ISqlStreamRecord</typeparam>
 	public class SqlStream<T> : IDisposable, IEnumerable<SqlDataRecord> where T: ISqlStreamRecord
 	{
-		ILog logger = LogManager.GetCurrentClassLogger();
+		private static ILog logger = LogManager.GetCurrentClassLogger();
 		ISqlStreamConnection<T> connection;
 
 		// stream buffer members
