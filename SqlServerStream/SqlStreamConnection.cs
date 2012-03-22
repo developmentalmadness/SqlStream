@@ -40,7 +40,7 @@ namespace DevelopMENTALMadness.Data.Sql
 					ParameterName = ParameterName,
 					TypeName = UserDefinedTypeName,
 					SqlDbType = SqlDbType.Structured,
-					Value = this
+					Value = stream
 				};
 
 				cmd.Parameters.Add(p);

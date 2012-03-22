@@ -49,6 +49,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlStream.cs" />
     <Compile Include="SqlStreamConnection.cs" />
+    <Compile Include="SqlStructuredParameterWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
