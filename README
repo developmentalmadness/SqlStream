@@ -18,71 +18,71 @@ To actually use this library in a project you'll need to define the following:
 Setup SQL Server:
 
 ```T-SQL
-	IF OBJECT_ID(N'dbo.TVPTestProc') IS NOT NULL
-		DROP PROCEDURE dbo.[TVPTestProc]
-	GO
-	IF  EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'StreamSchema' AND ss.name = N'dbo')
-		DROP TYPE [dbo].[StreamSchema]
-	GO
+IF OBJECT_ID(N'dbo.TVPTestProc') IS NOT NULL
+	DROP PROCEDURE dbo.[TVPTestProc]
+GO
+IF  EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'StreamSchema' AND ss.name = N'dbo')
+	DROP TYPE [dbo].[StreamSchema]
+GO
 
-	IF OBJECT_ID(N'dbo.TestTable') IS NOT NULL
-		DROP TABLE dbo.TestTable
-	GO
+IF OBJECT_ID(N'dbo.TestTable') IS NOT NULL
+	DROP TABLE dbo.TestTable
+GO
 
-	CREATE TABLE dbo.TestTable (
-		[ID] INT NOT NULL,
-		[ProductName] VARCHAR(255) NOT NULL,
-		[Price] DECIMAL(9,3) NOT NULL
-	)
+CREATE TABLE dbo.TestTable (
+	[ID] INT NOT NULL,
+	[ProductName] VARCHAR(255) NOT NULL,
+	[Price] DECIMAL(9,3) NOT NULL
+)
 
-	CREATE TYPE [dbo].[StreamSchema] AS TABLE(
-		[ID] INT NOT NULL,
-		[ProductName] VARCHAR(255) NOT NULL,
-		[Price] DECIMAL(9,3) NOT NULL
-	)
-	GO
+CREATE TYPE [dbo].[StreamSchema] AS TABLE(
+	[ID] INT NOT NULL,
+	[ProductName] VARCHAR(255) NOT NULL,
+	[Price] DECIMAL(9,3) NOT NULL
+)
+GO
 
-	CREATE PROCEDURE dbo.[TVPTestProc]
-		@stream dbo.StreamSchema READONLY,
-		@userid INT,
-		@resultCount INT = NULL OUTPUT
-	AS
-		SET NOCOUNT ON
+CREATE PROCEDURE dbo.[TVPTestProc]
+	@stream dbo.StreamSchema READONLY,
+	@userid INT,
+	@resultCount INT = NULL OUTPUT
+AS
+	SET NOCOUNT ON
 
-		INSERT INTO TestTable
-			SELECT Id, ProductName, Price FROM @stream
-		
-		SELECT @resultCount = COUNT(*) FROM TestTable
-	GO
+	INSERT INTO TestTable
+		SELECT Id, ProductName, Price FROM @stream
+	
+	SELECT @resultCount = COUNT(*) FROM TestTable
+GO
 ```
 Now use it like this:
 ```C#
-            using (SqlStream<StreamSchema> target = new SqlStream<StreamSchema>(new SqlStreamConnection("Server=(local);Database=tempdb;Trusted_Connection=Yes;"), SqlStreamBehavior.CloseConnection, 10))
-            {
-                target.StoredProcedureName = "dbo.TVPTestProc";
+using (SqlStream<StreamSchema> target = new SqlStream<StreamSchema>(new SqlStreamConnection("Server=(local);Database=tempdb;Trusted_Connection=Yes;"), SqlStreamBehavior.CloseConnection, 10))
+{
+	target.StoredProcedureName = "dbo.TVPTestProc";
 
-                target.Parameters.AddStructured<StreamSchema>("@stream", "dbo.StreamSchema", target)
-                    .Map(src => src.Id, "Id", SqlDbType.Int)
-                    .Map(src => src.ProductName, "ProductName", SqlDbType.VarChar, 255)
-                    .Map(src => Convert.ToDecimal(src.Price), "Price", SqlDbType.Decimal, 9, 3);
+	target.Parameters.AddStructured<StreamSchema>("@stream", "dbo.StreamSchema", target)
+		.Map(src => src.Id, "Id", SqlDbType.Int)
+		.Map(src => src.ProductName, "ProductName", SqlDbType.VarChar, 255)
+		.Map(src => Convert.ToDecimal(src.Price), "Price", SqlDbType.Decimal, 9, 3);
 
-                target.Parameters.Add("@userid", SqlDbType.Int).Value = 1;
-                var output = target.Parameters.Add("@resultCount", SqlDbType.Int);
-                output.Direction = ParameterDirection.InputOutput;
-                output.Value = 0;
+	target.Parameters.Add("@userid", SqlDbType.Int).Value = 1;
+	var output = target.Parameters.Add("@resultCount", SqlDbType.Int);
+	output.Direction = ParameterDirection.InputOutput;
+	output.Value = 0;
 
-                for (int i = 0; i < expected; i++)
-                {
-                    target.Write(new StreamSchema
-                    {
-                        Id = i,
-                        ProductName = String.Format("Product {0}", i),
-                        Price = (i + 1.0) - 0.01
-                    });
-                }
+	for (int i = 0; i < expected; i++)
+	{
+		target.Write(new StreamSchema
+		{
+			Id = i,
+			ProductName = String.Format("Product {0}", i),
+			Price = (i + 1.0) - 0.01
+		});
+	}
 
-                // need to wait for Close() or Dispose() before checking output parameters
-                target.Close();
-                actual = Convert.ToInt32(output.Value);
-            }
+	// need to wait for Close() or Dispose() before checking output parameters
+	target.Close();
+	actual = Convert.ToInt32(output.Value);
+}
 ```
