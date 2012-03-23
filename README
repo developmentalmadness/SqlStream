@@ -17,6 +17,7 @@ To actually use this library in a project you'll need to define the following:
 
 Setup SQL Server:
 
+```T-SQL
 	IF OBJECT_ID(N'dbo.TVPTestProc') IS NOT NULL
 		DROP PROCEDURE dbo.[TVPTestProc]
 	GO
@@ -53,9 +54,9 @@ Setup SQL Server:
 		
 		SELECT @resultCount = COUNT(*) FROM TestTable
 	GO
-
+```
 Now use it like this:
-
+```C#
             using (SqlStream<StreamSchema> target = new SqlStream<StreamSchema>(new SqlStreamConnection("Server=(local);Database=tempdb;Trusted_Connection=Yes;"), SqlStreamBehavior.CloseConnection, 10))
             {
                 target.StoredProcedureName = "dbo.TVPTestProc";
@@ -84,3 +85,4 @@ Now use it like this:
                 target.Close();
                 actual = Convert.ToInt32(output.Value);
             }
+```
