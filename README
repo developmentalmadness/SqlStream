@@ -8,16 +8,16 @@ To see how it is used, open the solution file (VS 2010), set SqlServerStreamTest
 
 To actually use this library in a project you'll need to define the following:
 
-1) A Sql Server User Defined Type (UDT): This will act as the TVP for your stored procedure.
-2) A Stored Procedure which has one parameter which uses the UDT you defined in step #1.
-3) Use the SqlStream<T> class like you would a SqlConnection object to setup your connection
-4) Use the AddStructured<T> to add a structured SqlParameter to the internal SqlCommand of SqlStream<T>
-5) Use the Map methods of the SqlStructuredParameterWrapper class to map your POCO or primitive type to the UDT you defined in step #1
+1. A Sql Server User Defined Type (UDT): This will act as the TVP for your stored procedure.
+2. A Stored Procedure which has one parameter which uses the UDT you defined in step #1.
+3. Use the SqlStream<T> class like you would a SqlConnection object to setup your connection
+4. Use the AddStructured<T> to add a structured SqlParameter to the internal SqlCommand of SqlStream<T>
+5. Use the Map methods of the SqlStructuredParameterWrapper class to map your POCO or primitive type to the UDT you defined in step #1
 
 
 Setup SQL Server:
 
-	`IF OBJECT_ID(N'dbo.TVPTestProc') IS NOT NULL
+	IF OBJECT_ID(N'dbo.TVPTestProc') IS NOT NULL
 		DROP PROCEDURE dbo.[TVPTestProc]
 	GO
 	IF  EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'StreamSchema' AND ss.name = N'dbo')
@@ -52,11 +52,11 @@ Setup SQL Server:
 			SELECT Id, ProductName, Price FROM @stream
 		
 		SELECT @resultCount = COUNT(*) FROM TestTable
-	GO`
+	GO
 
 Now use it like this:
 
-            `using (SqlStream<StreamSchema> target = new SqlStream<StreamSchema>(new SqlStreamConnection("Server=(local);Database=tempdb;Trusted_Connection=Yes;"), SqlStreamBehavior.CloseConnection, 10))
+            using (SqlStream<StreamSchema> target = new SqlStream<StreamSchema>(new SqlStreamConnection("Server=(local);Database=tempdb;Trusted_Connection=Yes;"), SqlStreamBehavior.CloseConnection, 10))
             {
                 target.StoredProcedureName = "dbo.TVPTestProc";
 
@@ -83,4 +83,4 @@ Now use it like this:
                 // need to wait for Close() or Dispose() before checking output parameters
                 target.Close();
                 actual = Convert.ToInt32(output.Value);
-            }`
+            }
