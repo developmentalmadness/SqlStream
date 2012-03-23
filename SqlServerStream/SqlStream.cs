@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Threading;
 using Common.Logging;
 using Microsoft.SqlServer.Server;
 
 namespace DevelopMENTALMadness.Data.Sql
 {
-	public interface ISqlStreamRecord
-	{
-		SqlDataRecord ToSqlDataRecord();		
-	}
-
-	public interface ISqlStreamConnection<T> where T : ISqlStreamRecord
-	{
-		void ExecuteNonQuery(SqlStream<T> stream);
-	}
+    public enum SqlStreamBehavior
+    {
+        None = 0x00,
+        CloseConnection = 0x01,
+        ReturnResults = 0x02,
+        ReturnScalar = 0x04
+    }
 
 	/// <summary>
 	/// A bulk-import (streaming) implementation for use with Sql 2008
@@ -23,10 +23,15 @@ namespace DevelopMENTALMadness.Data.Sql
 	/// <see cref="http://www.sqlservercentral.com/articles/SQL+Server+2008/66554/"/>
 	/// </summary>
 	/// <typeparam name="T">A class that implements ISqlStreamRecord</typeparam>
-	public class SqlStream<T> : IDisposable, IEnumerable<SqlDataRecord> where T: ISqlStreamRecord
+	public class SqlStream<T> : IDisposable, IEnumerable<T>
 	{
 		private static ILog logger = LogManager.GetCurrentClassLogger();
-		ISqlStreamConnection<T> connection;
+        ISqlStreamConnection connection;
+        SqlCommand command;
+        SqlDataReader reader;
+        Object scalarResult = null;
+        SqlStreamBehavior behavior;
+        private bool closed = false;
 
 		// stream buffer members
 		private Queue<IEnumerable<T>> chunks = new Queue<IEnumerable<T>>();
@@ -42,18 +47,30 @@ namespace DevelopMENTALMadness.Data.Sql
 		private int queueLocked = 0;
 		private int finalizeStream = 0;
 
-		public SqlStream(ISqlStreamConnection<T> connection)
+        public SqlStream(ISqlStreamConnection connection)
+            : this(connection, SqlStreamBehavior.None)
+        {
+
+        }
+
+        public SqlStream(ISqlStreamConnection connection, SqlStreamBehavior behavior)
 		{
 			this.connection = connection;
+            this.command = new SqlCommand();
+            this.command.CommandType = CommandType.StoredProcedure;
+            this.behavior = behavior;
 			buffer = new List<T>(bufferSize);
 		}
 
-		public SqlStream(ISqlStreamConnection<T> connection, int bufferSize)
-		{
-			this.connection = connection;
-			this.bufferSize = bufferSize;
-			buffer = new List<T>(bufferSize);
-		}
+        public SqlStream(ISqlStreamConnection connection, SqlStreamBehavior behavior, int bufferSize)
+            : this(connection, behavior)
+        {
+            buffer = new List<T>(bufferSize);
+        }
+
+        public SqlParameterCollection Parameters { get { return command.Parameters; } }
+        public String StoredProcedureName { get { return command.CommandText; } set { command.CommandText = value; } }
+        public Int32 CommandTimeout { get { return command.CommandTimeout; } set { command.CommandTimeout = value; } }
 
 		/// <summary>
 		/// Write record to stream buffer
@@ -75,7 +92,6 @@ namespace DevelopMENTALMadness.Data.Sql
 			}	
 		}
 
-
 		public void Flush()
 		{
 			EnqueueCurrent();
@@ -83,19 +99,37 @@ namespace DevelopMENTALMadness.Data.Sql
 			if (alreadyStarted == 0)
 			{
 				logger.Debug("Staring background thread.");
-				ThreadPool.QueueUserWorkItem(new WaitCallback(ExecuteNonQuery));
+				ThreadPool.QueueUserWorkItem(new WaitCallback(Execute));
 			}
 		}
 
 		public void Close()
 		{
-			// flush buffer and wait
-			logger.Debug("Closing stream, set finalize flag and wait");
-			Interlocked.Increment(ref finalizeStream);
-			Flush();
-			completed.Wait();
-			logger.Debug("Finished closing stream.");
+            if (!closed)
+            {
+                // flush buffer and wait
+                logger.Debug("Closing stream, set finalize flag and wait");
+                Interlocked.Increment(ref finalizeStream);
+                Flush();
+                completed.Wait();
+                if (behavior == SqlStreamBehavior.CloseConnection)
+                    connection.Close();
+                logger.Debug("Finished closing stream.");
+                closed = true;
+            }
 		}
+
+        public SqlDataReader ExecuteReader()
+        {
+            Close();
+            return reader;
+        }
+
+        public Object ExecuteScalar()
+        {
+            Close();
+            return scalarResult;
+        }
 
 		#region IDisposable Members
 		private bool disposed = false;
@@ -108,6 +142,9 @@ namespace DevelopMENTALMadness.Data.Sql
 			disposed = true;
 
 			Close();
+
+            if (behavior == SqlStreamBehavior.CloseConnection)
+                connection.Dispose();
 		}
 
 		#endregion
@@ -179,15 +216,33 @@ namespace DevelopMENTALMadness.Data.Sql
 			}
 		}
 
-		private void ExecuteNonQuery(Object state)
+		private void Execute(Object state)
 		{
 			logger.Debug("Background thread started.");
-			connection.ExecuteNonQuery(this);
-		}
+
+            if (connection.State != ConnectionState.Open)
+                connection.Open();
+
+            switch (behavior)
+            {
+                default:
+                    connection.ExecuteNonQuery(command);
+                    break;
+                case SqlStreamBehavior.ReturnResults:
+
+                    reader = connection.ExecuteReader(command);
+                    break;
+                case SqlStreamBehavior.ReturnScalar:
+                    scalarResult = connection.ExecuteScalar(command);
+                    break;
+            }
+
+            completed.Set();
+        }
 
 		#region IEnumerable<SqlDataRecord> Members
 
-		IEnumerator<SqlDataRecord> IEnumerable<SqlDataRecord>.GetEnumerator()
+		IEnumerator<T> IEnumerable<T>.GetEnumerator()
 		{
 			while (finalizeStream == 0 || chunks.Count != 0)
 			{
@@ -197,7 +252,7 @@ namespace DevelopMENTALMadness.Data.Sql
 				var e = DequeueNext();
 				foreach(var i in e)
 				{
-					yield return i.ToSqlDataRecord();	
+					yield return i;	
 				}
 
 				if (chunks.Count == 0)
@@ -207,7 +262,6 @@ namespace DevelopMENTALMadness.Data.Sql
 				}
 			}
 
-			completed.Set();
 			logger.Debug("End of stream");
 		}
 
@@ -217,7 +271,7 @@ namespace DevelopMENTALMadness.Data.Sql
 
 		IEnumerator IEnumerable.GetEnumerator()
 		{
-			return ((IEnumerable<SqlDataRecord>)this).GetEnumerator();
+			return ((IEnumerable<T>)this).GetEnumerator();
 		}
 
 		#endregion

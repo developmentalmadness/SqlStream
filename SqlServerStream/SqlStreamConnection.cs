@@ -4,50 +4,75 @@ using System.Data.SqlClient;
 
 namespace DevelopMENTALMadness.Data.Sql
 {
-	public class SqlStreamConnection<T> : ISqlStreamConnection<T> where T : ISqlStreamRecord
+    public interface ISqlStreamConnection : IDisposable
+    {
+        void ExecuteNonQuery(SqlCommand cmd);
+        SqlDataReader ExecuteReader(SqlCommand cmd);
+        Object ExecuteScalar(SqlCommand cmd);
+        void Open();
+        void Close();
+        ConnectionState State { get; }
+    }
+
+	public class SqlStreamConnection : ISqlStreamConnection
 	{
-		public SqlStreamConnection()
+        SqlConnection connection;
+
+        public SqlStreamConnection()
 			: this("SqlServer")
 		{
 
-		}
+        }
 
-		public SqlStreamConnection(String connectionName)
+        public SqlStreamConnection(SqlConnection connection)
+        {
+            this.connection = connection;
+        }
+
+		public SqlStreamConnection(String connectionString)
 		{
-			ConnectionName = connectionName;
-			StoredProcName = "dbo.SteamImport";
-			ParameterName = "@stream";
-			UserDefinedTypeName = "dbo.StreamSchema";
+            this.connection = new SqlConnection(connectionString);
 		}
 
-		public String ConnectionName { get; private set; }
+        public void Open()
+        {
+            connection.Open();
+        }
 
-		public String StoredProcName { get; set; }
-		public String ParameterName { get; set; }
-		public String UserDefinedTypeName { get; set; }
+        public void Close()
+        {
+            connection.Close();
+        }
 
-		#region ISqlStreamConnection<T> Members
+        public void Dispose()
+        {
+            connection.Dispose();
+        }
 
-		public void ExecuteNonQuery(SqlStream<T> stream)
-		{
-			using (var connection = new SqlConnection(ConnectionName))
-			{
-				SqlCommand cmd = new SqlCommand(StoredProcName, connection);
-				cmd.CommandType = CommandType.StoredProcedure;
+        public ConnectionState State { get { return connection.State; } }
 
-				var p = new SqlParameter
-				{
-					ParameterName = ParameterName,
-					TypeName = UserDefinedTypeName,
-					SqlDbType = SqlDbType.Structured,
-					Value = stream
-				};
+        void ISqlStreamConnection.ExecuteNonQuery(SqlCommand cmd)
+        {
+            cmd.Connection = connection;
+            if (connection.State != ConnectionState.Open)
+                connection.Open();
+            cmd.ExecuteNonQuery();
+        }
 
-				cmd.Parameters.Add(p);
-				cmd.ExecuteNonQuery();
-			}
-		}
+        SqlDataReader ISqlStreamConnection.ExecuteReader(SqlCommand cmd)
+        {
+            cmd.Connection = connection;
+            if (connection.State != ConnectionState.Open)
+                connection.Open();
+            return cmd.ExecuteReader();
+        }
 
-		#endregion
-	}
+        object ISqlStreamConnection.ExecuteScalar(SqlCommand cmd)
+        {
+            cmd.Connection = connection;
+            if (connection.State != ConnectionState.Open)
+                connection.Open();
+            return cmd.ExecuteScalar();
+        }
+    }
 }
