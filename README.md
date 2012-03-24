@@ -93,12 +93,13 @@ Now call it like this:
 ```C#
 
 int outputValue = 0;
+int bufferSize = 10000;
 
 // if you're streaming a large amount of data (from a file for example) use 
 // SqlStream<T> instead of System.Data.SqlClient.SqlConnection
 using (SqlStream<StreamSchema> target = new SqlStream<StreamSchema>(
 	new SqlStreamConnection("Server=(local);Database=tempdb;Trusted_Connection=Yes;"), 
-	SqlStreamBehavior.CloseConnection, 10))
+	SqlStreamBehavior.CloseConnection, bufferSize))
 {
 	target.StoredProcedureName = "dbo.TVPTestProc";
 

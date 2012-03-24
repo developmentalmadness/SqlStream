@@ -36,7 +36,7 @@ namespace DevelopMENTALMadness.Data.Sql
 		// stream buffer members
 		private Queue<IEnumerable<T>> chunks = new Queue<IEnumerable<T>>();
 		private List<T> buffer = new List<T>();
-		private int bufferSize = 10;
+		private int bufferSize = 1000;
 
 		// internal events
 		private ManualResetEventSlim enqueued = new ManualResetEventSlim(false);
