@@ -55,7 +55,9 @@ AS
 	SELECT @resultCount = COUNT(*) FROM TestTable
 GO
 ```
+
 Now use it like this:
+
 ```C#
 using (SqlStream<StreamSchema> target = new SqlStream<StreamSchema>(new SqlStreamConnection("Server=(local);Database=tempdb;Trusted_Connection=Yes;"), SqlStreamBehavior.CloseConnection, 10))
 {
