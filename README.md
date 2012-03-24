@@ -21,7 +21,9 @@ Setup SQL Server:
 IF OBJECT_ID(N'dbo.TVPTestProc') IS NOT NULL
 	DROP PROCEDURE dbo.[TVPTestProc]
 GO
-IF  EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'StreamSchema' AND ss.name = N'dbo')
+IF  EXISTS (SELECT * FROM sys.types st 
+			JOIN sys.schemas ss ON st.schema_id = ss.schema_id 
+			WHERE st.name = N'StreamSchema' AND ss.name = N'dbo')
 	DROP TYPE [dbo].[StreamSchema]
 GO
 
@@ -59,16 +61,22 @@ GO
 Now use it like this:
 
 ```C#
-using (SqlStream<StreamSchema> target = new SqlStream<StreamSchema>(new SqlStreamConnection("Server=(local);Database=tempdb;Trusted_Connection=Yes;"), SqlStreamBehavior.CloseConnection, 10))
+using (SqlStream<StreamSchema> target = new SqlStream<StreamSchema>(
+	new SqlStreamConnection("Server=(local);Database=tempdb;Trusted_Connection=Yes;"), 
+	SqlStreamBehavior.CloseConnection, 10))
 {
 	target.StoredProcedureName = "dbo.TVPTestProc";
 
+	// add structured parameter (with mapping)
 	target.Parameters.AddStructured<StreamSchema>("@stream", "dbo.StreamSchema", target)
 		.Map(src => src.Id, "Id", SqlDbType.Int)
 		.Map(src => src.ProductName, "ProductName", SqlDbType.VarChar, 255)
 		.Map(src => Convert.ToDecimal(src.Price), "Price", SqlDbType.Decimal, 9, 3);
 
+	// add standard input parameter
 	target.Parameters.Add("@userid", SqlDbType.Int).Value = 1;
+	
+	// add standard output parameter
 	var output = target.Parameters.Add("@resultCount", SqlDbType.Int);
 	output.Direction = ParameterDirection.InputOutput;
 	output.Value = 0;
