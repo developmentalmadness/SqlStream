@@ -61,6 +61,7 @@ GO
 Now use it like this:
 
 ```C#
+int outputValue = 0;
 using (SqlStream<StreamSchema> target = new SqlStream<StreamSchema>(
 	new SqlStreamConnection("Server=(local);Database=tempdb;Trusted_Connection=Yes;"), 
 	SqlStreamBehavior.CloseConnection, 10))
@@ -91,8 +92,8 @@ using (SqlStream<StreamSchema> target = new SqlStream<StreamSchema>(
 		});
 	}
 
-	// need to wait for Close() or Dispose() before checking output parameters
+	// make sure to wait for Close() or Dispose() before checking output parameters
 	target.Close();
-	actual = Convert.ToInt32(output.Value);
+	outputValue = Convert.ToInt32(output.Value);
 }
 ```
