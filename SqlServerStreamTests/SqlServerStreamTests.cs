@@ -22,7 +22,7 @@ namespace DevelopMENTALMadness.Data.Sql.Tests
             string[] script = null;
             using (var file = File.OpenText(".\\SetupDbTest.sql"))
             {
-                script = file.ReadToEnd().Split(new string[] { "\r\nGO\r\n" }, StringSplitOptions.None);
+                script = file.ReadToEnd().Split(new string[] { "\nGO\n" }, StringSplitOptions.None);
             }
 
             using (SqlConnection conn = new SqlConnection("Server=(local);Database=tempdb;Trusted_Connection=Yes;"))

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Threading;
-using Common.Logging;
+using log4net;
 using Microsoft.SqlServer.Server;
 
 namespace DevelopMENTALMadness.Data.Sql
@@ -25,7 +25,7 @@ namespace DevelopMENTALMadness.Data.Sql
 	/// <typeparam name="T">A class that implements ISqlStreamRecord</typeparam>
 	public class SqlStream<T> : IDisposable, IEnumerable<T>
 	{
-		private static ILog logger = LogManager.GetCurrentClassLogger();
+		private static ILog logger = LogManager.GetLogger(typeof(SqlStream<T>));
         ISqlStreamConnection connection;
         SqlCommand command;
         SqlDataReader reader;
